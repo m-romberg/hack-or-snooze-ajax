@@ -22,9 +22,12 @@ async function getAndShowStoriesOnStart() {
 function generateStoryMarkup(story) {
   // console.debug("generateStoryMarkup", story);
 
+  //check if current user logged in
+
   const hostName = story.getHostName();
   return $(`
       <li id="${story.storyId}">
+        ${getStar(story)}
         <a href="${story.url}" target="a_blank" class="story-link">
           ${story.title}
         </a>
@@ -35,6 +38,45 @@ function generateStoryMarkup(story) {
     `);
 }
 
+//OLD SOLUTION: CAN TURN INTO TERINARY
+// function getStar (story){
+//   if (currentUser){
+//     const correctStar = getCorrectStarForStory(story);
+//   }
+//   return "";
+// }
+
+/**Returns HTML regarding star functionality
+ * Return empty string if user is not logged in
+ * Return filled star for user favorites,
+ * empty star for user unfavorites
+ */
+
+function getStar (story) {
+  console.debug('getStar')
+  const favBtn = currentUser ? getCorrectStarForStory(story) : "";
+  return favBtn
+}
+
+
+
+function getCorrectStarForStory (story){
+  console.debug("getCorrectStarForStory", currentUser)
+  const currStoryId = story.storyId;
+
+  const isUserFavorite = currentUser.favorites.find(
+    story => story.storyId === currStoryId);
+
+  console.log(isUserFavorite);
+
+  const starClass = isUserFavorite ? "-fill" : "";
+
+  const starHtml = `
+  <i class="bi bi-star${starClass}"></i>`;
+
+
+  return starHtml;
+}
 /** Gets list of stories from server, generates their HTML, and puts on page. */
 
 function putStoriesOnPage() {
