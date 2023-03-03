@@ -24,8 +24,9 @@ class Story {
   /** Parses hostname out of URL and returns it. */
 
   getHostName() {
-    // UNIMPLEMENTED: complete this function!
-    return "hostname.com";
+
+    //built inclass in JS with 'host' method
+    return new URL(this.url).host;
   }
 }
 
@@ -73,8 +74,21 @@ class StoryList {
    * Returns the new Story instance
    */
 
-  async addStory( /* user, newStory */) {
-    // UNIMPLEMENTED: complete this function!
+  async addStory( user, {title, author, url}) {
+    // TODO: UNIMPLEMENTED: complete this function!
+    const token = user.loginToken;
+    const storyPostData = {
+      token,
+      "story" : {title, author, url}
+    };
+
+    const response = await axios.post(`${BASE_URL}/stories`, storyPostData);
+    const story = new Story(response.data.story);
+
+    this.stories.unshift(story);
+
+    return story;
+
   }
 }
 
@@ -193,4 +207,35 @@ class User {
       return null;
     }
   }
+
+/** add story to current user favorites and update favorite in API */
+  async addFavorite(story){
+    this.favorites.push(story);
+
+    const token = currentUser.loginToken;
+    const response = await axios.post(`
+      ${BASE_URL}/users/${currentUser.username}/favorites/${story.storyId}`,
+      {token});
+
+    console.log(response);
+  }
+
+  /** remove story from current user favorites and remove favorite in API */
+  async removeFavorite(story){
+
+    //remove story from this.favorites
+    const id = story.storyId;
+    const indxRemove = this.favorites.findIndex(favStory => favStory.storyId === id);
+    this.favorites.splice(indxRemove, 1);
+    console.log(this.favorites);
+
+    //remove story from API
+    const token = currentUser.loginToken;
+    const response = await axios.delete(
+      `${BASE_URL}/users/${currentUser.username}/favorites/${story.storyId}`,
+      {data: {token}});
+
+      console.log(response);
+  }
+
 }

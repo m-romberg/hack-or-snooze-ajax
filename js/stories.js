@@ -50,3 +50,35 @@ function putStoriesOnPage() {
 
   $allStoriesList.show();
 }
+
+/**
+ * Get data from story form,
+ * add story to page,
+ * hide and clear form
+ */
+
+async function putSubmittedStoryOnPage (evt) {
+  evt.preventDefault();
+
+  //get form data
+  const author = $("#author").val();
+  const title = $("#title").val();
+  const url = $("#url").val();
+
+  //make object for data needed in addStory
+  const storyData = {title, url, author};
+
+  //pass storyData into .addStory which calls the API
+  const story = await storyList.addStory(currentUser, storyData);
+
+  const $story = generateStoryMarkup(story);
+
+  //add to page
+  $allStoriesList.prepend($story);
+
+  //reset page and form
+  $storyForm.toggleClass("hidden");
+  $storyForm.trigger('reset');
+}
+
+$storyForm.on("submit", putSubmittedStoryOnPage)
