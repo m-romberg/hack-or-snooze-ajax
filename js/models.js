@@ -35,14 +35,14 @@ class Story {
    * returns Story instance
    */
 
-  static async getStoryById (id){
-    const response = await axios ({
+  static async getStoryById(id) {
+    const response = await axios({
       url: `${BASE_URL}/stories/${id}`,
       method: "GET"
-    })
+    });
 
     const storyData = response.data.story;
-    const story = new Story (storyData);
+    const story = new Story(storyData);
     return story;
 
   }
@@ -92,12 +92,12 @@ class StoryList {
    * Returns the new Story instance
    */
 
-  async addStory( user, {title, author, url}) {
+  async addStory(user, { title, author, url }) {
     // TODO: UNIMPLEMENTED: complete this function!
     const token = user.loginToken;
     const storyPostData = {
       token,
-      "story" : {title, author, url}
+      "story": { title, author, url }
     };
 
     const response = await axios.post(`${BASE_URL}/stories`, storyPostData);
@@ -122,13 +122,13 @@ class User {
    */
 
   constructor({
-                username,
-                name,
-                createdAt,
-                favorites = [],
-                ownStories = []
-              },
-              token) {
+    username,
+    name,
+    createdAt,
+    favorites = [],
+    ownStories = []
+  },
+    token) {
     this.username = username;
     this.name = name;
     this.createdAt = createdAt;
@@ -226,34 +226,35 @@ class User {
     }
   }
 
-/** add story to current user favorites and update favorite in API */
-  async addFavorite(story){
-    this.favorites.push(story);
+  /** add story instance to current user favorites and update favorite in API */
+  async addFavorite(story) {
 
-    const token = currentUser.loginToken;
+    const token = this.loginToken;
     const response = await axios.post(`
-      ${BASE_URL}/users/${currentUser.username}/favorites/${story.storyId}`,
-      {token});
+    ${BASE_URL}/users/${this.username}/favorites/${story.storyId}`,
+      { token });
 
     console.log(response);
+    this.favorites.push(story);
   }
 
-  /** remove story from current user favorites and remove favorite in API */
-  async removeFavorite(story){
+  /** remove story instance from current user favorites and remove favorite in API */
+  async removeFavorite(story) {
 
     //remove story from this.favorites
     const id = story.storyId;
+
+    //remove story from API
+    const token = this.loginToken;
+    const response = await axios.delete(
+      `${BASE_URL}/users/${this.username}/favorites/${id}`,
+      { data: { token } });
+
+    console.log(response);
     const indxRemove = this.favorites.findIndex(favStory => favStory.storyId === id);
     this.favorites.splice(indxRemove, 1); //removes the story on this.favorites
     console.log(this.favorites);
 
-    //remove story from API
-    const token = currentUser.loginToken;
-    const response = await axios.delete(
-      `${BASE_URL}/users/${currentUser.username}/favorites/${story.storyId}`,
-      {data: {token}});
-
-      console.log(response);
   }
 
 }

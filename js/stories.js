@@ -20,7 +20,7 @@ async function getAndShowStoriesOnStart() {
  */
 
 function generateStoryMarkup(story) {
-  // console.debug("generateStoryMarkup", story);
+  console.debug("generateStoryMarkup", story);
 
   //check if current user logged in
 
@@ -61,12 +61,14 @@ function getStar(story) {
 
 /**Returns HTML to create filled star for favorite story
  * and unfilled star for non-favorite stories
+ *  TODO: change isUserFavorite to instance method on user
  */
 function getCorrectStarForStory(story) {
   console.debug("getCorrectStarForStory");
   const currStoryId = story.storyId;
 
-  const isUserFavorite = currentUser.favorites.find(
+  //look into some
+  const isUserFavorite = currentUser.favorites.some(
     story => story.storyId === currStoryId);
 
   const starClass = isUserFavorite ? "-fill" : "";
@@ -145,7 +147,7 @@ function putFavoritesOnPage() {
  * toggle star display, updates user.favorites in API
  */
 
-async function changeFavoriteStory(evt) {
+async function toggleFavoriteStory(evt) {
   console.debug("changeFavoriteStory", evt);
 
   const $star = $(evt.target);
@@ -160,6 +162,7 @@ async function changeFavoriteStory(evt) {
   const isUserFavorite = currentUser.favorites.find(
     story => story.storyId === storyId);
 
+  //fill or unfill star
   if (isUserFavorite) {
     await currentUser.removeFavorite(story);
     $star.toggleClass("bi-star-fill bi-star");
@@ -173,5 +176,5 @@ async function changeFavoriteStory(evt) {
 }
 
 //add and remove favorites from both homepage and favoritelist
-$allStoriesList.on("click", ".star-btn", changeFavoriteStory);
-$favStoriesList.on("click", ".star-btn", changeFavoriteStory);
+$allStoriesList.on("click", ".star-btn", toggleFavoriteStory);
+$favStoriesList.on("click", ".star-btn", toggleFavoriteStory);
