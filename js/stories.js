@@ -52,28 +52,27 @@ function generateStoryMarkup(story) {
  * empty star for user unfavorites
  */
 
-function getStar (story) {
-  console.debug('getStar')
+function getStar(story) {
+
   const favBtn = currentUser ? getCorrectStarForStory(story) : "";
-  return favBtn
+  return favBtn;
 }
 
 
-
-function getCorrectStarForStory (story){
-  console.debug("getCorrectStarForStory", currentUser)
+/**Returns HTML to create filled star for favorite story
+ * and unfilled star for non-favorite stories
+ */
+function getCorrectStarForStory(story) {
+  console.debug("getCorrectStarForStory");
   const currStoryId = story.storyId;
 
   const isUserFavorite = currentUser.favorites.find(
     story => story.storyId === currStoryId);
 
-  console.log(isUserFavorite);
-
   const starClass = isUserFavorite ? "-fill" : "";
 
   const starHtml = `
-  <i class="bi bi-star${starClass}"></i>`;
-
+  <i class= "bi bi-star${starClass} star-btn"></i>`; //bootstrap icon
 
   return starHtml;
 }
@@ -99,7 +98,7 @@ function putStoriesOnPage() {
  * hide and clear form
  */
 
-async function putSubmittedStoryOnPage (evt) {
+async function putSubmittedStoryOnPage(evt) {
   evt.preventDefault();
 
   //get form data
@@ -108,7 +107,7 @@ async function putSubmittedStoryOnPage (evt) {
   const url = $("#url").val();
 
   //make object for data needed in addStory
-  const storyData = {title, url, author};
+  const storyData = { title, url, author };
 
   //pass storyData into .addStory which calls the API
   const story = await storyList.addStory(currentUser, storyData);
@@ -123,4 +122,56 @@ async function putSubmittedStoryOnPage (evt) {
   $storyForm.trigger('reset');
 }
 
-$storyForm.on("submit", putSubmittedStoryOnPage)
+$storyForm.on("submit", putSubmittedStoryOnPage);
+
+/** displays favorited stories when 'favorites' is clicked on in nav bar*/
+function putFavoritesOnPage() {
+  console.debug('putFavoriteOnPage ran');
+  //clear old html bc it is a dynamic page
+  $favStoriesList.empty();
+
+  const userFavorites = currentUser.favorites;
+
+  for (let story of userFavorites) {
+
+    const $story = generateStoryMarkup(story);
+    $favStoriesList.append($story);
+  }
+
+  $favStoriesList.show();
+}
+
+/**Changes HTML and API for favorited/unfavorites stories:
+ * toggle star display, updates user.favorites in API
+ */
+
+async function changeFavoriteStory(evt) {
+  console.debug("changeFavoriteStory", evt);
+
+  const $star = $(evt.target);
+  const $storyLiHtml = $star.closest("li");
+
+  //need to turn ID into story, methods addFavorite and removeFavorite
+  //take story instances as inputs
+  const storyId = $storyLiHtml.attr("id");
+  const story = await Story.getStoryById(storyId);
+
+  //check if story is favorite
+  const isUserFavorite = currentUser.favorites.find(
+    story => story.storyId === storyId);
+
+  if (isUserFavorite) {
+    await currentUser.removeFavorite(story);
+    $star.toggleClass("bi-star-fill bi-star");
+  }
+  else {
+    await currentUser.addFavorite(story);
+    $star.toggleClass("bi-star bi-star-fill");
+  }
+
+
+}
+
+//add and remove favorites from both homepage and favoritelist
+$allStoriesList.on("click", ".star-btn", changeFavoriteStory);
+$favStoriesList.on("click", ".star-btn", changeFavoriteStory);

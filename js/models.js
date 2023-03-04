@@ -28,6 +28,24 @@ class Story {
     //built inclass in JS with 'host' method
     return new URL(this.url).host;
   }
+
+  /**
+   * Get story from API using story ID
+   * takes in string of id
+   * returns Story instance
+   */
+
+  static async getStoryById (id){
+    const response = await axios ({
+      url: `${BASE_URL}/stories/${id}`,
+      method: "GET"
+    })
+
+    const storyData = response.data.story;
+    const story = new Story (storyData);
+    return story;
+
+  }
 }
 
 
@@ -226,7 +244,7 @@ class User {
     //remove story from this.favorites
     const id = story.storyId;
     const indxRemove = this.favorites.findIndex(favStory => favStory.storyId === id);
-    this.favorites.splice(indxRemove, 1);
+    this.favorites.splice(indxRemove, 1); //removes the story on this.favorites
     console.log(this.favorites);
 
     //remove story from API

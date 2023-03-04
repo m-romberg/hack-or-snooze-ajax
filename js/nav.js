@@ -39,10 +39,20 @@ function updateNavOnLogin() {
 
 /**When user clicks 'submit' in nav, shows the submit story form */
 
-function navSubmitStoryClick (evt){
-  console.debug("navSubmitStoryCLick", evt);
-  $storyForm.toggleClass("hidden");
+function navSubmitStoryClick(evt) {
+  console.debug("navSubmitStoryClick");
+  hidePageComponents();
+  $storyForm.show();
+  $allStoriesList.show();
 }
 
 $navSubmit.on("click", navSubmitStoryClick);
+
+function navFavoritesClick(evt) {
+  console.debug("navFavoritesClick");
+  hidePageComponents();
+  putFavoritesOnPage();
+}
+
+$navFavorites.on('click', navFavoritesClick);
 

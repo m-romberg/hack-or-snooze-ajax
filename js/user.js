@@ -104,13 +104,15 @@ function saveUserCredentialsInLocalStorage() {
  *
  * - show the stories list
  * - update nav bar options for logged-in user
+ * - update favorite option for logged-in user
  * - generate the user profile part of the page
  */
 
 function updateUIOnUserLogin() {
   console.debug("updateUIOnUserLogin");
 
+  hidePageComponents()
   $allStoriesList.show();
-
+  putStoriesOnPage();
   updateNavOnLogin();
 }
